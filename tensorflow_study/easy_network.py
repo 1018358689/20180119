@@ -19,10 +19,20 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 ## part one：定义神经网络的结构，即计算图（假设我们创建一个只有两个隐藏层的神经网络）
 
 # step1：定义超参数
-learning_rate = 0.01  # 学习速率；梯度下降的幅度
+# learning_rate 其中0.1为初始学习率；100表示每100轮学习率变一次,这个轮数是由total_data除以batch_size得到的，也可以理解为每一个epoch学习率变一次；0.98表示每次变化为上一次学习率乘以0.98；staircase = True表示成阶梯函数下降，False时表示连续衰减。
+# 注意global_step在optimizer中的minimize中要引用。
 bath_size = 16  # 一批输入数据的个数
 epoch_step = 10 ** 4  # 迭代次数，1个epoch等于使用训练集中的全部样本训练一次；
 display_step = 10 ** 2  # 打印中间结果的步数
+# learning_rate = 0.01  # 学习速率；梯度下降的幅度
+global_step = tf.Variable(0)
+learning_rate = tf.train.exponential_decay(
+    learning_rate=0.1,
+    global_step=global_step,
+    decay_steps=total_batch / bath_size,
+    decay_rate=0.98,
+    staircase=True
+)
 
 # step2：定义输入层、隐藏层、输出层神经元
 # x：输入层 [None, 784]表示x的维度，其中None代表该数暂时不确定，其实这个None与batch_size的数据相对应，x可理解为一次性输入batch_size个数据，而每个数据有784个特征向量组成，即输入层有784个神经元。
@@ -47,6 +57,7 @@ b = {
     'out': tf.Variable(tf.random_normal([10]))
 }
 
+
 # step4：定义神经网络network
 # 其中，tf.nn.relu是非线性激励函数，常用的还有tf.sigmoid、tf.tanh
 def network(x_input, weights, biases):
@@ -61,11 +72,11 @@ def network(x_input, weights, biases):
 # 其中pred为预测的数据，即神经网络的输出
 # cost即损失函数，tf.reduce_mean是求平均损失，因为一次性输入的是多个（batch_size个）数据。
 # softmax层的作用是将输出层的数据全部压缩至0~1之间，并且所有和等于1。这就可以理解成将输出层的数据变成概率分布的形式。然后就可以用交叉熵函数定义损失函数了。
-# tf.nn.softmax_cross_entropy_with_logits损失函数：即先经过softmax层然后使用交叉熵就算损失。
+# tf.nn.softmax_cross_entropy_with_logits损失函数：即先经过softmax层然后使用交叉熵算损失。
 # tf.train.AdamOptimizer是选择的优化器，其作用是最小化cost
 pred = network(x_input=x, weights=w, biases=b)
 cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=pred, labels=y))
-optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
+optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost, global_step)
 
 # tf.argmax函数返回的是张量在某一维最大值的索引值，由于标签向量是由0,1组成，因此最大值1所在的索引位置就是类别标签。如果pred的最大值所在的索引值等于类别标签的索引值，表示这个结果分类正确
 # tf.equal是TensorFlow中判断两个张量是否相等，返回的是一个布尔型张量，如[True,False,False]。
@@ -86,7 +97,7 @@ with tf.Session() as sess:
         total_batch = int(alldata / bath_size)  # alldata：所有数据的大小
         for i in range(total_batch):
             x_batch, y_batch = '一个batch_size的输入', '以及相对应的输入的标签'
-            output = sess.run([optimizer, cost], feed_dict={x: x_batch, y: y_batch})
+            _, output = sess.run([optimizer, cost], feed_dict={x: x_batch, y: y_batch})
             avg_cost += output / total_batch
         if epoch % display_step == 0:
             print('cost: {}'.format(avg_cost))
