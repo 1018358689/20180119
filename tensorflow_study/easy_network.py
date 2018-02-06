@@ -79,6 +79,7 @@ cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=pred, la
 optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost, global_step)
 
 # tf.argmax函数返回的是张量在某一维最大值的索引值，由于标签向量是由0,1组成，因此最大值1所在的索引位置就是类别标签。如果pred的最大值所在的索引值等于类别标签的索引值，表示这个结果分类正确
+# 0轴匹配的是index， 涉及上下运算；1轴匹配的是columns, 涉及左右运算。
 # tf.equal是TensorFlow中判断两个张量是否相等，返回的是一个布尔型张量，如[True,False,False]。
 # 因为corret_pred是一个布尔型张量，因此需要用tf.cast()函数转化成float型来计算准确率，如[True,False,False，False]会变成[1,0,0,0]，经过reduce_mean取平均值0.25来表示准确率。
 correct_pred = tf.equal(tf.argmax(y, 1), tf.argmax(pred, 1))
