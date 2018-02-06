@@ -1,0 +1,18 @@
+sudo: false
+language: python
+python:
+  - "3.6"
+  - "3.5"
+  - "3.4"
+  - "3.3"
+  - "2.7"
+  - "pypy"
+install:
+  - travis_retry pip install -U isort flake8 mock pytest pytest-cov
+script:
+  - pytest tests
+after_success:
+  - flake8 --show-source fake_useragent
+  - isort --check-only -rc fake_useragent --diff
+  - travis_retry pip install -q coveralls
+  - travis_retry coveralls
