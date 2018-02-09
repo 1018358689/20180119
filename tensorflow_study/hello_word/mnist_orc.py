@@ -15,10 +15,10 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 # print('test data label: {}'.format(mnist.test.labels[0]))
 
 # 定义超参数
-batch_size = 100  # 一批输入的数据个数
+batch_size = 50  # 一批输入的数据个数
 learning_rate = 0.01  # 学习速率：梯度下降的幅度
-iteration_step = 30000  # 迭代训练次数
-display_step = 1000
+iteration_step = 10000  # 迭代训练次数
+display_step = 500
 
 # 定义神经元个数
 n_input = 784  # 28*28

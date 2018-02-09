@@ -1,0 +1,24 @@
+tf.nn.conv2d(input, filter, strides, padding, use_cudnn_on_gpu=None, name=None)
+
+介绍参数：
+
+input：指卷积需要输入的参数，具有这样的shape[batch, in_height, in_width, in_channels]，分别是[batch张图片, 每张图片高度为in_height, 每张图片宽度为in_width, 图像通道为in_channels]。
+
+filter：指用来做卷积的滤波器，当然滤波器也需要有相应参数，滤波器的shape为[filter_height, filter_width, in_channels, out_channels]，分别对应[滤波器高度, 滤波器宽度, 接受图像的通道数, 卷积后通道数]，其中第三个参数 in_channels需要与input中的第四个参数 in_channels一致，out_channels第一看的话有些不好理解，如rgb输入三通道图，我们的滤波器的out_channels设为1的话，就是三通道对应值相加，最后输出一个卷积核。
+
+strides:代表步长，其值可以直接默认一个数，也可以是一个四维数如[1,2,1,1]，则其意思是水平方向卷积步长为第二个参数2，垂直方向步长为1.其中第一和第四个参数我还不是很明白，请大佬指点，貌似和通道有关系。
+
+padding：代表填充方式，参数只有两种，SAME和VALID，SAME比VALID的填充方式多了一列，比如一个3*3图像用2*2的滤波器进行卷积，当步长设为2的时候，会缺少一列，则进行第二次卷积的时候，VALID发现余下的窗口不足2*2会直接把第三列去掉，SAME则会填充一列，填充值为0。
+
+use_cudnn_on_gpu：bool类型，是否使用cudnn加速，默认为true。大概意思是是否使用gpu加速，还没搞太懂。
+
+name：给返回的tensor命名。给输出feature map起名字。
+
+tf.nn.max_pool(value, ksize, strides, padding, name=None)
+value：池化的输入，一般池化层接在卷积层的后面，所以输出通常为feature map。feature map依旧是[batch, in_height, in_width, in_channels]这样的参数。
+
+ksize：池化窗口的大小，参数为四维向量，通常取[1, height, width, 1]，因为我们不想在batch和channels上做池化，所以这两个维度设为了1。ps：估计面tf.nn.conv2d中stries的四个取值也有              相同的意思。
+
+stries：步长，同样是一个四维向量。
+
+padding：填充方式同样只有两种不重复了。
