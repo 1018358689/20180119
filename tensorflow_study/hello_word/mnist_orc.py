@@ -15,9 +15,9 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 # print('test data label: {}'.format(mnist.test.labels[0]))
 
 # 定义超参数
-batch_size = 50  # 一批输入的数据个数
+batch_size = 100  # 一批输入的数据个数
 learning_rate = 0.01  # 学习速率：梯度下降的幅度
-iteration_step = 10000  # 迭代训练次数
+iteration_step = 20000  # 迭代训练次数
 display_step = 500
 
 # 定义神经元个数
@@ -56,6 +56,7 @@ def train(mnist):
                             tf.argmax(y, axis=1))  # argmax取pred和y每一行最大值的索引 equal判断是否相等 返回bool的张量
     accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))  # case将bool张量转【0，1，0，0】这样子
 
+    saver = tf.train.Saver(max_to_keep=3)
     init = tf.global_variables_initializer()
 
     with tf.Session() as sess:
@@ -64,7 +65,7 @@ def train(mnist):
         validate_data = {x: mnist.validation.images, y: mnist.validation.labels}
         test_data = {x: mnist.test.images, y: mnist.test.labels}
 
-        for i in range(iteration_step):
+        for i in range(1, iteration_step + 1):
             # xs,ys该循环的每个步骤中，我们都会随机抓取训练数据中的batch_size个批处理数据点（每次不重复点，除非用完了所有点），然后我们用这些数据点作为参数替换之前的占位符来运行optimizer
             xs, ys = mnist.train.next_batch(batch_size)
             _, loss = sess.run([optimizer, cross_entropy], feed_dict={x: xs, y: ys})
@@ -72,10 +73,12 @@ def train(mnist):
             if i % display_step == 0:
                 validate_accuracy = sess.run(accuracy, feed_dict=validate_data)
                 print('step:{} loss:{:.2f} validation accuracy:{:.4f}'.format(i, loss, validate_accuracy))
+                saver.save(sess, './model1/model.ckpt', global_step=i)
         print('the training is finish!')
         # 最终的测试准确率
         test_accuracy = sess.run(accuracy, feed_dict=test_data)
         print('the test accuracy is:{:.4f}'.format(test_accuracy))
+        print('Saved...')
 
 
 def main(argv=None):

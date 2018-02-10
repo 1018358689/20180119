@@ -3,6 +3,9 @@
 # @Time    : 2018/2/9 1:30
 # @Author  : 11
 # @File    : gpu_test.py
+from tensorflow.python.client import device_lib as _device_lib
+
+
 def is_gpu_available(cuda_only=True):
     """
     code from https://github.com/tensorflow/tensorflow/blob/master/tensorflow/python/platform/test.py
@@ -12,7 +15,6 @@ def is_gpu_available(cuda_only=True):
     Returns:
       True iff a gpu device of the requested kind is available.
     """
-    from tensorflow.python.client import device_lib as _device_lib
 
     if cuda_only:
         return any((x.device_type == 'GPU')
@@ -24,11 +26,13 @@ def is_gpu_available(cuda_only=True):
 
 def get_available_gpus():
     """
-    code from http://stackoverflow.com/questions/38559755/how-to-get-current-available-gpus-in-tensorflow
+    查看GPU的命令：nvidia-smi
+    查看被占用的情况：ps aux | grep PID
+    :return: GPU个数
     """
-    from tensorflow.python.client import device_lib as _device_lib
     local_device_protos = _device_lib.list_local_devices()
-    return [x.name for x in local_device_protos if x.device_type == 'GPU']
+    print("all: %s" % [x.name for x in local_device_protos])
+    print("gpu: %s" % [x.name for x in local_device_protos if x.device_type == 'GPU'])
 
 
 print(is_gpu_available())
