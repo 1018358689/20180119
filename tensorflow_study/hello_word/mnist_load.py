@@ -24,7 +24,7 @@ out/biases
 #     # print(sess.run(graph.get_tensor_by_name('hidden/biases:0')))
 #     network = graph.get_tensor_by_name('network:0')
 #     print(network)
-ckpt = tf.train.get_checkpoint_state('model1')
-a = ckpt.model_checkpoint_path
+ckpt = tf.train.get_checkpoint_state('model4')
+# a = ckpt.model_checkpoint_path
 print(ckpt)
-print(a)
+# print(a)

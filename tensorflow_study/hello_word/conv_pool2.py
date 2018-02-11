@@ -61,10 +61,9 @@ def max_pool_2x2(x):
     )
 
 
-def network(x_input):
+def network(x):
     # 输入图片转换成单通道
-    x_image = tf.reshape(x_input,
-                         [-1, 28, 28, 1])  # x_image又把xs reshape成了28*28*1的形状，因为是灰色图片，所以通道是1.作为训练时的input，-1代表图片数量不定
+    x_image = tf.reshape(x, [-1, 28, 28, 1])  # x_image又把xs reshape成了28*28*1的形状，因为是灰色图片，所以通道是1.作为训练时的input，-1代表图片数量不定
     # 在这我们把输入shape转换成了4D tensor，第二与第三维度对应的是照片的宽度与高度，最后一个维度是颜色通道数，本例子中是1。
     # 第一层卷积+池化
     h_conv1 = tf.nn.relu(conv2d(x_image, w['conv1']) + b['conv1'])
@@ -78,7 +77,7 @@ def network(x_input):
     h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, w['fc1']) + b['fc1'])
     # 第二层全连接
     h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)  # 按照keep_prob的概率扔掉一些，为了减少过拟合 ：0.8表示保留80%
-    h_fc2 = tf.add(tf.matmul(h_fc1_drop, w['fc2']), b['fc2'],name='pred')
+    h_fc2 = tf.add(tf.matmul(h_fc1_drop, w['fc2']), b['fc2'], name='pred')
     return h_fc2
 
 
@@ -105,7 +104,8 @@ def train(mnist, isTrain=True):
             if ckpt and ckpt.model_checkpoint_path:
                 saver.restore(sess, ckpt.model_checkpoint_path)
                 # 读取网络中的global_step的值，即当前已经训练的次数
-                step = sess.run(tf.get_default_graph().get_tensor_by_name('global_step:0'))
+                # step = sess.run(tf.get_default_graph().get_tensor_by_name('global_step:0'))
+                step = sess.run(global_step)
                 print('Update:{}'.format(step))
             while step < iteration:
                 xs, ys = mnist.train.next_batch(batch_size)  # batch_size个训练集丢进去训练
@@ -127,17 +127,16 @@ def train(mnist, isTrain=True):
                 # print('the test accuracy is:{:.4f}'.format(final_accuracy))
                 graph = tf.get_default_graph()
                 pred = graph.get_tensor_by_name('pred:0')
-                tes_img = mnist.test.images[:5, :]
-                tes_lab = mnist.test.labels[:5, :]
+                tes_img = mnist.test.images[:1, :]
+                tes_lab = mnist.test.labels[:1, :]
                 for i in tes_lab:
                     print(i)
                 for i in tes_img:
-                    sess = tf.Session()
-                    tes_pred = sess.run(pred, feed_dict={x: i})
+                    i = sess.run(tf.reshape(i, [-1, 28 * 28]))
+                    print(i.shape)
+                    tes_pred = sess.run(pred, feed_dict={x: i, keep_prob: 1.0})
                     print(tes_pred)
-                    # tes_pred = sess.run(network(i))
-                    # print(tes_pred)
-                sess.close()
+
             else:
                 print('NO Model!')
 

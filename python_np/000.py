@@ -41,8 +41,8 @@ array3 = np.random.rand(10,10)
 
 #创建5*的一维数组（0-100）
 array4 = np.random.uniform(0, 100, size=5)
-# print(array4)
-
+print(array4)
+print(array4.shape)
 #创建6*的一维数组（0-50）
 array5 = np.random.randint(0, 50, size=6)
 # print(array5)
@@ -110,5 +110,5 @@ array_hstack = np.hstack((array_10_10_0,array_10_10_1))
 # print(a,b)
 # print(type(a),type(b))
 
-result = np.genfromtxt('./test1.csv', delimiter=',')
-print(result)
+# result = np.genfromtxt('./test1.csv', delimiter=',')
+# print(result)
